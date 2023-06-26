@@ -12,7 +12,7 @@
 */
 
 -- EMPLOYEE 테이블의 모든 컬럼(*) 조회
--- SELECT EMP_ID, EMP_NAM
+-- SELECT EMP_ID, EMP_NAME
 SELECT *
 FROM EMPLOYEE;
 
@@ -361,6 +361,160 @@ WHERE EMP_NAME LIKE '%하%' AND SALARY >= 2400000;
 SELECT DEPT_ID, DEPT_TITLE
 FROM DEPARTMENT
 WHERE DEPT_TITLE LIKE '해외영업%';
+
+
+-----------------------------------------------------------------------------------------------------
+
+SELECT BONUS
+FROM EMPLOYEE;
+
+/*
+    < IS NULL / IS NOT NULL >
+    컬럼값에 NULL이 있을 경우 NULL값 비교에 사용되는 연산자
+    
+*/
+
+-- 보너스를 받지 않는 사원(BONUS 값이 NULL)들의 사번, 이름, 급여, 보너스 조회
+SELECT EMP_ID, EMP_NAME, SALARY, BONUS
+FROM EMPLOYEE
+--WHERE BONUS = NULL; 정상적으로 조회 안됨
+WHERE BONUS IS NULL;
+
+-- 보너스를 받는 사원(BONUS 값이 NULL이 아닌)들의 사번, 이름, 급여 보너스 조회
+SELECT EMP_ID, EMP_NAME, SALARY, BONUS
+FROM EMPLOYEE
+--WHERE BONUS != NULL;
+--WHERE BONUS IS NOT NULL;
+WHERE NOT BONUS IS NULL; -- NOT은 컬럼명 또는 IS 뒤에서 사용 가능
+
+
+-- 사수가 없는 사원(MANAGER_ID 값이 NULL)들의 사원명, 사수사번, 부서코드 조회
+SELECT EMP_NAME, MANAGER_ID, DEPT_CODE
+FROM EMPLOYEE
+WHERE MANAGER_ID IS NULL;
+
+
+-- 부서 배치를 아직 받지는 않았지만(DEPT_CODE 값이 NULL인), 보너스는 받는 사원(BONUS 값이 NULL이 아닌)들의 이름, 보너스, 부서코드 조회
+SELECT EMP_NAME, BONUS, DEPT_CODE
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NULL AND BONUS IS NOT NULL;
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+/*
+    < IN >
+    비교대상컬럼값이 내가 제시한 목록중에 일치하는 값이 있는지
+    
+    [표현법]
+    비교대상컬럼 IN {'값1', '값2',...);
+    
+*/
+
+-- 부서코드가 D6 이거나 D8이거나 D5인 부서원들의 이름, 부서코드, 급여 조회
+SELECT EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+--WHERE DEPT_CODE = 'D6' OR DEPT_CODE = 'D8' OR DEPT_CODE = 'D5';
+WHERE DEPT_CODE IN ('D6', 'D8', 'D5');
+
+-- 그 외의 사원들
+SELECT EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE NOT IN ('D6', 'D8', 'D5');
+
+---------------------------------------------------------------------------------------
+
+/*
+    < 연산자 우선 순위 >
+    0. ()
+    1. 산술연산자
+    2. 연결연산자
+    3. 비교연산자
+    4. IS NULL / LIKE '특정패턴' / IN
+    5. BETWEEN AND
+    6. NOT(논리연산자)
+    7. AND(논리연산자) **
+    8. OR(논리연산자) **
+    
+*/
+
+-- 직급코드가 J7이거나 J2인 사원들 중에 급여가 200만원 이상인 사원들의 모든 컬럼 조회
+SELECT *
+FROM EMPLOYEE
+WHERE (JOB_CODE = 'J7' OR JOB_CODE = 'J2') AND SALARY >= 2000000; -- AND가 OR보다 우선순위가 높아서 원하는 결과X
+
+
+--------------------------------------------- 실습문제 -------------------------------------------------------
+-- 1. 사수가 없고 부서배치도 받지 않은 사원들의 사원명, 사수사번, 부서코드 조회
+SELECT EMP_NAME, MANAGER_ID, DEPT_CODE
+FROM EMPLOYEE
+WHERE MANAGER_ID IS NULL AND DEPT_CODE IS NULL;
+
+-- 2. 연봉(보너스미포함)이 3천만원 이상이고 보너스를 받지 않는 사원들의 사번, 사원명, 급여, 보너스 조회
+SELECT EMP_ID, EMP_NAME, SALARY, BONUS
+FROM EMPLOYEE
+WHERE SALARY*12 >= 30000000 AND BONUS IS NULL;
+
+-- 3. 입사일이 '95/01/01' 이상이고 부서배치를 받은 사원들 사번, 사원명, 입사일, 부서코드 조회
+SELECT EMP_ID, EMP_NAME, HIRE_DATE, DEPT_CODE
+FROM EMPLOYEE
+WHERE HIRE_DATE >= '95/01/01' AND DEPT_CODE IS NOT NULL;
+
+-- 4. 급여가 200만원 이상 500만원 이하이고 입사일이 '01/01/01'이상이고 보너스는 받지 않는 사원들의 사번, 사원명, 급여, 입사일, 보너스 조회
+SELECT EMP_ID, EMP_NAME, SALARY, HIRE_DATE, BONUS
+FROM EMPLOYEE
+WHERE (SALARY >= 2000000 AND SALARY <= 5000000) AND HIRE_DATE >= '01/01/01' AND BONUS IS NULL;
+
+
+-- 5. 보너스를 포함한 연봉이 NULL이 아니고 이름이 '하'가 포함되어있는 사원들의 사번, 사원명, 급여, 보너스포함연봉 조회
+SELECT EMP_ID, EMP_NAME, SALARY, ((SALARY*BONUS)+SALARY)*12 AS "보너스포함 연봉"
+FROM EMPLOYEE
+--WHERE ((SALARY*BONUS)+SALARY)*12 IS NOT NULL AND EMP_NAME LIKE '%하%';
+WHERE BONUS IS NOT NULL AND EMP_NAME LIKE '%하%';
+
+----------------------------------------------------------------------------------------
+
+-- 쿼리 실행 순서
+SELECT EMP_ID, EMP_NAME, SALARY -- 3
+FROM EMPLOYEE -- 1 => 테이블명이 존재하지 않으면 여기서 오류 발생
+WHERE DEPT_CODE IS NULL; -- 2
+
+
+-----------------------------------------------------------------------------------------------
+
+/*
+    < OREDER BY 절 >
+    가장 마지막 줄에 작성! 뿐만 아니라 실행순서 또한 마지막에 실행
+    
+    [표현법]
+    SELECT 조회할 컬럼, 컬럼, 산술연산식 AS "별칭"
+    FROM 조회하고자 하는 테이블명
+    WHERE 조건식
+    ORDER BY 정렬하고자 하는 컬럼|별칭|컬럼순번 [ASC|DESC] [NULLS FIRST | NULLS LAST]
+    
+    - ASC : 오름차순 정렬 (생략시 기본값)
+    - DESC : 내림차순 정렬
+    
+    - NULLS FIRST : 정렬하고자하는 컬럼값에 NULL이 있을 경우 해당 데이터를 맨 앞 배치 (생략시 DESC일때의 기본값)
+    - NULLS LAST : 정렬하고자하는 컬럼값에 NULL이 있을 경우 해당 데이터를 맨 뒤 배치 (생략시 ASC일때의 기본값)
+    
+*/
+
+SELECT *
+FROM EMPLOYEE
+--ORDER BY BONUS; 생략시 ASC 적용
+--ORDER BY BONUS ASC; -- 오름차순 정렬일 때 기본적으로 NULLS LAST 구나!
+--ORDER BY BONUS /*ASC*/ NULLS FIRST;
+--ORDER BY BONUS DESC NULLS LAST;  -- 내림차순 정렬일 때 기본적으로 NULLS FIRST 구나!
+ORDER BY BONUS DESC, SALARY ASC; -- 정렬기준 여러개 제시 가능(첫번재 기준의 컬럼값이 동일할 경우 두번째의 기준 컬럼가지고 정렬)
+
+-- 전체사원의 사원명, 연봉 조회(연봉별로 내림차순 정렬 조회)
+SELECT EMP_NAME, SALARY*12 AS "연봉"-- 2
+FROM EMPLOYEE -- 1
+--ORDER BY SALARY*12 DESC;
+--ORDER BY 연봉 DESC; -- 3 => ORDER BY 절이 마지막 실행순서이기에 별칭 사용 가능
+ORDER BY 2 DESC; -- 컬럼순번이 2번인 컬럼 내림차순 조회 ** (컬럼개수보다 큰 숫자 입력시 오류 발생)
+
 
 
 
