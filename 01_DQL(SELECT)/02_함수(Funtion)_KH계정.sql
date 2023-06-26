@@ -195,12 +195,250 @@ SELECT CONCAT('ABC', '초콜릿', '123') FROM DUAL; -- 오류 발생 : CONCAT은 문자열 
 SELECT 'ABC' || '초콜릿' || '123' FROM DUAL;
 
 ----------------------------------------------------------------------------------------------
+/*
+    * REPLACE
+    
+    REPLACE(STRING, STR1, STR2)     => 결과값은 CHARACTER 타입  
+*/
+
+SELECT EMP_NAME, EMAIL, REPLACE(EMAIL, 'kh.or.kr', 'gmail.com')
+FROM EMPLOYEE;
 
 
+---------------------------------------------------------------------------------------------------
+
+/*
+    < 숫자 처리 함수 >
+    
+    * ABS
+    숫자의 절대값을 구해주는 함수
+    
+    ABS (NUMBER)     => 결과값은 NUMBER 타입
+*/
+
+SELECT ABS(-10) FROM DUAL;
+SELECT ABS(-5.7) FROM DUAL;
+
+---------------------------------------------------------------------------------------------------------
+
+/*
+    * MOD
+    두 수를 나눈 나머지값을 반환해주는 함수
+    
+    MOD(NUMBER, NUMBER)     => 결과값 NUMBER 타입
+
+*/
+
+SELECT MOD(10,3) FROM DUAL;
+SELECT MOD(10.9,3) FROM DUAL;
+
+----------------------------------------------------------------------------------------
+
+/*
+    * ROUND
+    반올림한 결과를 반환
+    
+    ROUND(NUMBER, [위치]   => 결과값은 NUMBER 타입
+*/
+
+SELECT ROUND(123.456) FROM DUAL; -- 위치 생략시 0
+SELECT ROUND(123.456, 1) FROM DUAL;
+SELECT ROUND(123.456, 5) FROM DUAL; -- 그대로 나옴
+SELECT ROUND(123.456, -1) FROM DUAL; -- 120
+SELECT ROUND(123.456, -2) FROM DUAL; -- 100
+
+----------------------------------------------------------------------------------------
+/*
+    * CEIL
+    올림 처리 해주는 함수
+    
+    CEIL(NUMBER)   => 결과값은 NUMBER 타입
+*/
+
+SELECT CEIL(123.152) FROM DUAL; -- 5이상 아니어도 무조건 그냥 올림! 위치지정 불가
+
+-------------------------------------------------------------------------------------------
+
+/*
+    * FLOOR
+    소수점 아래 버림처리하는 함수
+    
+    FLOOR(NUMBER)
+*/
+
+SELECT FLOOR(123.152) FROM DUAL; -- 무조건 버림 위치지정 불가!
+SELECT FLOOR(123.952) FROM DUAL;
+
+---------------------------------------------------------------------------------------------
+
+/*
+    * TRUNC
+    위치 지정 가능한 버림 처리 함수
+    
+    TRUNC(NUMBER, [위치])
+*/
+
+SELECT TRUNC(123.456) FROM DUAL; -- 위치지정 안하면 FLOOR와 동일
+SELECT TRUNC(123.456, 1) FROM DUAL; -- 소수점 아래 첫째자리까지 표현하고싶다
+SELECT TRUNC(123.456, -1) FROM DUAL;
 
 
+-------------------------------------------------------------------------------------------------
+    
+/*
+    < 날짜 처리 함수 >
+    
+*/
+
+-- * SYSDATE : 시스템 날짜 및 시간 반환 (현재 날짜 및 시간)
+SELECT SYSDATE FROM DUAL;
+
+-- * MONTH_BETWEEN(DATE1, DATE2) : 두 날짜 사이의 개월 수 => 내부적으로 DATE1 - DATE2 후 나누기 30, 31 이 진행될꺼임
+--> 결과값은 NUMBER 타입
+-- EMPLOYEE 에서 사원명, 입사일, 근무일수, 근무개월 수
+SELECT EMP_NAME, HIRE_DATE, FLOOR(SYSDATE - HIRE_DATE) || '일' AS "근무일수",
+CEIL(MONTHS_BETWEEN(SYSDATE, HIRE_DATE))||'개월' AS "근무개월수"
+FROM EMPLOYEE;
 
 
+-- * ADD_MONTHS(DATE, NUMBER) : 특정날짜에 해당 숫자만큼의 개월 수를 더해서 날짜를 리턴
+--> 결과값은 DATE 타입
+
+SELECT ADD_MONTHS(SYSDATE, 6) FROM DUAL;
+
+-- EMPLOYEE에서 사원명, 입사일, 입사후 6개월이 된 날짜 조회
+SELECT EMP_NAME, HIRE_DATE, ADD_MONTHS(HIRE_DATE, 6) AS "수습이 끝난 날짜"
+FROM EMPLOYEE;
+
+-- * NEXT_DAY(DATE, 요일) : 특정 날짜 이후에 가장 가까운 해당 요일의 날짜를 반환
+--> 결과의 값도 DATE 타입
+SELECT SYSDATE, NEXT_DAY(SYSDATE, '금요일') FROM DUAL;
+SELECT SYSDATE, NEXT_DAY(SYSDATE, '금') FROM DUAL;
+SELECT SYSDATE, NEXT_DAY(SYSDATE, 5) FROM DUAL; -- 1: 일요일 ~ 7 : 토요일
+SELECT SYSDATE, NEXT_DAY('98/01/09', 6) FROM DUAL;
+SELECT SYSDSATE NEXT_DAY(SYSDATE, 'FRIDAY') FROM DUAL; -- 현재 언어가 KOREAN이라 안됨
+
+-- 번외) 언어변경
+SELECT * FROM NLS_SESSION_PARAMETERS;
+
+ALTER SESSION SET NLS_LANGUAGE = AMERICAN;
+ALTER SESSION SET NLS_LANGUAGE = KOREAN;
+
+
+-- * LAST_DAY(DATE) : 해당 월의 마지막 날짜를 구해서 반환
+--> 결과값 DATE 타입
+SELECT LAST_DAY(SYSDATE) FROM DUAL;
+
+-- EMPLOYEE 에서 사원명, 입사일, 입사한달의 마지막 날짜, 입사한 달에 근무한 일수
+SELECT EMP_NAME, HIRE_DATE, LAST_DAY(HIRE_DATE), LAST_DAY(HIRE_DATE) - HIRE_DATE
+FROM EMPLOYEE;
+
+/*
+    * EXTRACT : 특정 날짜로부터 년도|월|일 값을 추출해서 반환하는 함수
+    
+    EXTRACT(YEAR FROM DATE) : 년도만 추출
+    EXTRACT(MONTH FROM DATE) : 월만 추출
+    EXTRACT(DAY FROM DATE) : 일만 추출
+    => 결과값은 NUMBER 타입
+    
+*/
+
+-- 사원명, 입사년도, 입사월, 입사일 조회
+SELECT EMP_NAME, EXTRACT(YEAR FROM HIRE_DATE) AS "입사년도", EXTRACT(MONTH FROM HIRE_DATE) AS "입사월", EXTRACT(DAY FROM HIRE_DATE) AS "입사일"
+FROM EMPLOYEE
+ORDER BY "입사년도", "입사월", "입사일";
+
+
+------------------------------------------------------------------------------------------------
+
+/*
+    < 형 변환 함수 >
+    
+    * TO_CHAR : 숫자 타입 또는 날짜 타입의 값을 문자타입으로 변환시켜주는 함수
+    
+    TO_CHAR(숫자|날짜, [포맷])    => 결과값은 CHARACTER 타입
+    
+*/
+
+-- 숫자타입 => 문자타입
+SELECT TO_CHAR(1234) FROM DUAL; -- '1234'로 바뀌어 있는거임
+SELECT TO_CHAR(1234, '99999') FROM DUAL; -- 5칸 공간 확보, 오른쪽 정렬, 빈칸 공백
+SELECT TO_CHAR(1234, '00000') FROM DUAL; 
+SELECT TO_CHAR(1234, 'L99999') FROM DUAL; -- 현재 설정된 나라(LOCAL)의 화폐단위로 출력
+SELECT TO_CHAR(1234, '$99999') FROM DUAL;
+
+SELECT TO_CHAR(1234, 'L99,999') FROM DUAL;
+
+SELECT EMP_NAME, TO_CHAR(SALARY, 'L999,999,999')
+FROM EMPLOYEE;
+
+-- 날짜 타입 => 문자 타입
+SELECT SYSDATE FROM DUAL;
+SELECT TO_CHAR(SYSDATE) FROM DUAL; -- 출력 값 클릭해보면 다름
+SELECT TO_CHAR(SYSDATE,'PM HH:MI:SS') FROM DUAL; -- HH : 12시간 형식
+SELECT TO_CHAR(SYSDATE, 'HH24:MI:SS') FROM DUAL; -- HH24 : 24시간 형식
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD DAY DY') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'MON, YYYY') FROM DUAL;
+
+SELECT EMP_NAME, HIRE_DATE, TO_CHAR(HIRE_DATE, 'YYYY-MM-DD')
+FROM EMPLOYEE;
+
+-- EX) 1990년 02월 06일 형식으로
+SELECT TO_CHAR(HIRE_DATE, 'YYYY"년" MM"월" DD"일"') -- 없는 포맷 제시할때는 "" 로 묶기
+FROM EMPLOYEE;
+
+-- 년도와 관련된 포맷
+SELECT TO_CHAR(SYSDATE, 'YYYY'),
+       TO_CHAR(SYSDATE, 'YY'),
+       TO_CHAR(SYSDATE, 'RRRR'),
+       TO_CHAR(SYSDATE, 'RR'),
+       TO_CHAR(SYSDATE, 'YEAR')
+FROM DUAL;
+
+
+-- 월과 관련된 포맷
+SELECT TO_CHAR(SYSDATE, 'MMMM'),
+       TO_CHAR(SYSDATE, 'MON'),
+       TO_CHAR(SYSDATE, 'MONTH'),
+       TO_CHAR(SYSDATE, 'RM')
+FROM DUAL;
+
+
+-- 일과 관련된 포맷
+SELECT TO_CHAR(SYSDATE, 'DDD'), -- 올해 기준으로 오늘이 며칠째인지
+       TO_CHAR(SYSDATE, 'DD'), -- 월 기준으로 오늘이 며칠째인지
+       TO_CHAR(SYSDATE, 'D') -- 주 기준으로 오늘이 며칠째인지
+FROM DUAL;
+
+-- 요일에 대한 포맷
+SELECT TO_CHAR(SYSDATE, 'DAY'), 
+       TO_CHAR(SYSDATE, 'DY') 
+FROM DUAL;
+
+------------------------------------------------------------------------------------------
+
+/*
+    * TO_DATE : 숫자타입 또는 문자타입 데이터를 날짜 타입으로 변환 시켜주는 함수
+    
+    TO_DATE(숫자|문자, [포맷])
+    
+*/
+
+SELECT TO_DATE(20100101) FROM DUAL;
+SELECT TO_DATE(100101) FROM DUAL;
+
+SELECT TO_DATE(070101) FROM DUAL; -- 에러
+SELECT TO_DATE('070101') FROM DUAL; -- 첫글자 0인 경우는 문자타입으로 변경하고 해야함
+
+SELECT TO_DATE('041030 143000') FROM DUAL; -- 에러
+SELECT TO_DATE('041030 143000', 'YYMMDD HH24MISS') FROM DUAL;
+
+SELECT TO_DATE('140630', 'YYMMDD') FROM DUAL; -- 2014년
+SELECT TO_DATE('970630', 'YYMMDD') FROM DUAL; -- 2097년 => 무조건 현재세기로 반영 무조건 20을 붙임
+
+SELECT TO_DATE('140630', 'RRMMDD') FROM DUAL; -- 2014년
+SELECT TO_DATE('970630', 'RRMMDD') FROM DUAL; -- 1997년 
+-- RR : 해당 두자리 년도 값이 50 미만일 경우 현재 세기 반영, 50 이상일 경우 이전세기 반영
 
 
 
