@@ -278,6 +278,9 @@ SELECT E.EMP_ID AS "사원사번" , E.EMP_NAME AS "사원명", E.DEPT_CODE AS "사원부서
 FROM EMPLOYEE E, EMPLOYEE M
 WHERE E.MANAGER_ID = M.EMP_ID;
 
+SELECT EMP_ID AS "사원사번", EMP_NAME AS "사원명", DEPT_CODE AS "사원부서코드",
+       EMP_ID AS "사수사번
+
 -- >> ANSI 구문
 SELECT E.EMP_ID AS "사원사번" , E.EMP_NAME AS "사원명", E.DEPT_CODE AS "사원부서코드", 
        M.EMP_ID AS "사수사번", M.EMP_NAME AS "사수명", M.DEPT_CODE AS "사수부서코드"
