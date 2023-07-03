@@ -435,10 +435,63 @@ VALUES(3, 'user03', 'pass03', '이승우', '남', null, null, 40);
 INSERT INTO MEM 
 VALUES(3, 'user03', 'pass03', '이승우', '남', null, null, 20);
 
+INSERT INTO MEM
+VALUES(4, 'user04', 'pass04', '안정환', null, null, null, 10);
 
+-- MEM_GRADE (부모테이블) MEM (자식테이블)
+-- 이때 부모테이블(MEM_GRADE)에서 데이터 값을 삭제할 경우 어떤 문제가 발생할까?
+-- 데이터 삭제 : DELETE FROM 테이블명 WHERE 조건;
 
+--> MEM_GRADE 테이블에서 10번 삭제
+DELETE FROM MEM_GRADE
+WHERE GRDAE_CODE = 10;
+-- ORA-00904: "GRDAE_CODE": invalid identifier
+--> 자식테이블 (MEM)에 10이라는 값을 사용하고 있기 때문에 삭제가 안됨!
 
+DELETE FROM MEM_GRADE
+WHERE GRDAE_CODE = 30;
+--> 자식테이블(MEM)에 30이라는 값을 사용하고있지 않기 때문에 삭제가 잘됨!
 
+--> 자식테이블에 이미 사용하고 있는 값이 있을 경우
+--> 부모테이블로부터 무조건 삭제가 안되게 하는 "삭제제한"옵션이 걸려있음!!
 
+ROLLBACK;
 
+-------------------------------------------------------------------------------
+/*
+    자식 테이블 생성시 외래키 제약조건 부여할 때 삭제옵션 지정가능
+    * 삭제옵션 : 부모테이블의 데이터 삭제시 그 데이터를 사용하고 있는 자식테이블의 값을
+                어떻게 처리할건지 지정하는 것
+                
+    - ON DELETE RESTRICTED (기본값) : 삭제제한옵션으로, 자식데이터로 쓰이는 부모데이터는 삭제 아예 안되게끔
+    - ON DELETE SET NULL : 부모데이터 삭제시 해당 데이터를 쓰고 있는 자식데이터의 값을 NULL로 변경
+    - ON DELETE CASCADE : 부모데이터 삭제시 해당 데이터를 쓰고 있는 자식데이터도 같이 삭제시킴    
+*/
 
+DROP TABLE MEM;
+
+-- ON DELETE SET NULL
+CREATE TABLE MEM( -- 컬럼레벨방식
+    MEM_NO NUMBER PRIMARY KEY,
+    MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
+    MEM_PWD VARCHAR2(20) NOT NULL,
+    MEM_NAME VARCHAR2(20) NOT NULL,
+    GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
+    PHONE VARCHAR2(13),
+    EMAIL VARCHAR2(50),
+    GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE SET NULL -- 삭제옵션
+);
+
+INSERT INTO MEM 
+VALUES(1, 'user01', 'pass01', '손흥민', '남', null, null, null);
+
+INSERT INTO MEM 
+VALUES(2, 'user02', 'pass02', '이강인', null, null, null, 10);
+
+INSERT INTO MEM 
+VALUES(3, 'user03', 'pass03', '이승우', '남', null, null, 20);
+
+INSERT INTO MEM
+VALUES(4, 'user04', 'pass04', '안정환', null, null, null, 10);
+
+SELECT * FROM MEM;
