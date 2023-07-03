@@ -293,7 +293,7 @@ SELECT TRUNC(123.456, -1) FROM DUAL;
 -- * SYSDATE : 시스템 날짜 및 시간 반환 (현재 날짜 및 시간)
 SELECT SYSDATE FROM DUAL;
 
--- * MONTH_BETWEEN(DATE1, DATE2) : 두 날짜 사이의 개월 수 => 내부적으로 DATE1 - DATE2 후 나누기 30, 31 이 진행될꺼임
+-- * MONTHS_BETWEEN(DATE1, DATE2) : 두 날짜 사이의 개월 수 => 내부적으로 DATE1 - DATE2 후 나누기 30, 31 이 진행될꺼임
 --> 결과값은 NUMBER 타입
 -- EMPLOYEE 에서 사원명, 입사일, 근무일수, 근무개월 수
 SELECT EMP_NAME, HIRE_DATE, FLOOR(SYSDATE - HIRE_DATE) || '일' AS "근무일수",
