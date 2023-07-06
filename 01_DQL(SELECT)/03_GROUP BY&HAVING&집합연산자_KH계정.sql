@@ -102,7 +102,7 @@ HAVING COUNT(BONUS) = 0;
     2. WHERE 연산자들 가지고 기술
     3. GROUP BY 그룹 기준으로 삼을 컬럼 | 함수식
     4. HAVING 조건식 그룹함수를 가지고 기술
-    5. ORDER BY 컬럼명 | 컬럼순서 | 별칭 [ASC / DESC] [NULLS FIRST | NULLS LAST]
+    6. ORDER BY 컬럼명 | 컬럼순서 | 별칭 [ASC / DESC] [NULLS FIRST | NULLS LAST]
     
 */
 
