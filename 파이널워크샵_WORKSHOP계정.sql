@@ -201,10 +201,25 @@ ORDER BY 3;
 SELECT * FROM TB_BOOK;
 SELECT * FROM TB_WRITER;
 SELECT * FROM TB_BOOK_AUTHOR;
+SELECT * FROM TB_BOOK_TRANSLATOR;
 
-SELECT BOOK_NO, 
+
+SELECT BOOK_NO, WRITER_NM
 FROM TB_BOOK
+JOIN TB_BOOK_AUTHOR USING (BOOK_NO)
+JOIN TB_WRITER USING (WRITER_NO)
+--JOIN TB_BOOK_TRANSLATOR T ON (T.WRITER_NO = W.WRITER_NO)
 WHERE BOOK_NM = '아타트롤';
+
+-- 21. 현재 기준으로 최초 발행일로부터 만 30년이 경과되고, 재고 수량이 90권 이상인 도서에 대해 도서명, 재고
+-- 수량, 원래 가격, 20% 인하 가격을 표시하는 SQL 구문을 작성하시오. (결과 헤더는 “도서명”, “재고
+-- 수량”, “가격(Org)”, “가격(New)”로 표시할 것. 재고 수량이 많은 순, 할인 가격이 높은 순, 도서명순으로 표시되도록 할 것)
+SELECT * FROM TB_BOOK;
+
+SELECT BOOK_NM AS "도서명", STOCK_QTY AS "수량", TO_CHAR(PRICE,'99,999') AS "가격(Org)", TO_CHAR(PRICE*0.8,'99,999') AS "가격(New)"
+FROM TB_BOOK
+WHERE FLOOR(SYSDATE - ISSUE_DATE)/365 >= 30 AND STOCK_QTY >= 90
+ORDER BY 2 DESC, 4 DESC, BOOK_NM;
 
 
 
