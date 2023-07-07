@@ -201,7 +201,7 @@ SELECT BOOK_NM, PRICE,
        END AS "재고상태"
 FROM TB_BOOK
 WHERE PUBLISHER_NM = '황금가지' AND STOCK_QTY < 10
-ORDER BY 3;
+ORDER BY STOCK_QTY DESC, 1;
 
 -- 20. '아타트롤' 도서 작가와 역자를 표시하는 SQL 구문을 작성하시오. (결과 헤더는 ‘도서명’,’저자’,’역자’로 표시할 것)
 SELECT * FROM TB_BOOK;
